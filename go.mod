@@ -1,4 +1,4 @@
-module github.com/godoes/gorm-dameng
+module github.com/talentkai/gorm-dameng
 
 go 1.18
 
