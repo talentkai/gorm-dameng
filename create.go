@@ -233,13 +233,23 @@ func MergeCreate(db *gorm.DB, onConflict clause.OnConflict, values clause.Values
 	_, _ = db.Statement.WriteString(") ON ")
 
 	var where clause.Where
-	for _, field := range db.Statement.Schema.PrimaryFields {
-		where.Exprs = append(where.Exprs, clause.Eq{
-			Column: clause.Column{Table: db.Statement.Table, Name: field.DBName},
-			Value:  clause.Column{Table: "excluded", Name: field.DBName},
-		})
+	if len(onConflict.Columns) > 0 {
+		for _, field := range onConflict.Columns {
+			where.Exprs = append(where.Exprs, clause.Eq{
+				Column: clause.Column{Table: db.Statement.Table, Name: field.Name},
+				Value:  clause.Column{Table: "excluded", Name: field.Name},
+			})
+		}
+		where.Build(db.Statement)
+	}else{
+		for _, field := range db.Statement.Schema.PrimaryFields {
+			where.Exprs = append(where.Exprs, clause.Eq{
+				Column: clause.Column{Table: db.Statement.Table, Name: field.DBName},
+				Value:  clause.Column{Table: "excluded", Name: field.DBName},
+			})
+		}
+		where.Build(db.Statement)
 	}
-	where.Build(db.Statement)
 
 	if len(onConflict.DoUpdates) > 0 {
 		// 将UPDATE子句中出现在关联条件中的列去除（即上面的ON子句），否则会报错：-4064:不能更新关联条件中的列
