@@ -49,10 +49,9 @@ func Create(db *gorm.DB) {
 		if hasConflict {
 			MergeCreate(db, onConflict, values)
 		} else {
-			// 0924 屏蔽下面的自动生成主键ID的方式， RK这边统一使用雪花算法赋值
-			//setIdentityInsert := false
+			setIdentityInsert := false
 
-			/*if db.Statement.Schema != nil {
+			if db.Statement.Schema != nil {
 				if field := db.Statement.Schema.PrioritizedPrimaryField; field != nil && field.AutoIncrement {
 					switch db.Statement.ReflectValue.Kind() {
 					case reflect.Struct:
@@ -88,7 +87,7 @@ func Create(db *gorm.DB) {
 						}()
 					}
 				}
-			}*/
+			}
 
 			db.Statement.SQL.Reset()
 			db.Statement.AddClauseIfNotExists(clause.Insert{})
